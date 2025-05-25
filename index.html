@@ -50,6 +50,11 @@
             border-color: var(--selected-color) !important;
             background-color: var(--selected-bg);
         }
+
+        .option.locked {
+            opacity: 0.8;
+            cursor: not-allowed;
+        }
         
         .progress-bar {
             transition: width 0.5s ease;
@@ -297,13 +302,11 @@
             }
         }
 
-        /* Garantindo que todos os botões primários tenham a mesma aparência */
-        .btn-primary, #submit-btn {
-            background-color: var(--primary-color) !important;
-        }
-
-        .btn-primary:hover, #submit-btn:hover {
-            background-color: color-mix(in srgb, var(--primary-color) 90%, black) !important;
+        .locked-message {
+            font-size: 0.8rem;
+            color: var(--primary-color);
+            margin-top: 0.5rem;
+            font-style: italic;
         }
 
         /* Ajustes para mobile */
@@ -572,6 +575,7 @@
             // Render current question
             function renderQuestion() {
                 const question = questions[currentQuestion];
+                const isAnswered = answers[currentQuestion] !== undefined;
                 
                 // Apply theme based on question index
                 if (currentQuestion % 2 === 0) {
@@ -585,9 +589,12 @@
                 let optionsHtml = '';
                 question.options.forEach((option, index) => {
                     const isSelected = answers[currentQuestion] === index;
+                    
                     optionsHtml += `
-                        <label class="option block bg-white p-3 sm:p-4 rounded-lg mb-2 sm:mb-3 cursor-pointer transition-all shadow-md border-2 ${isSelected ? 'selected border-primary' : 'border-transparent'}">
-                            <input type="radio" name="answer" value="${index}" ${isSelected ? 'checked' : ''} class="hidden">
+                        <label class="option block bg-white p-3 sm:p-4 rounded-lg mb-2 sm:mb-3 cursor-pointer transition-all shadow-md border-2 
+                            ${isSelected ? 'selected border-primary' : 'border-transparent'} 
+                            ${isAnswered ? 'locked pointer-events-none opacity-80' : ''}">
+                            <input type="radio" name="answer" value="${index}" ${isSelected ? 'checked' : ''} class="hidden" ${isAnswered ? 'disabled' : ''}>
                             <div class="flex items-center">
                                 <div class="flex-shrink-0 h-4 w-4 sm:h-5 sm:w-5 rounded-full border-2 border-primary flex items-center justify-center mr-2 sm:mr-3">
                                     <div class="radio-dot h-2 w-2 sm:h-3 sm:w-3 rounded-full ${isSelected ? 'bg-primary' : 'bg-transparent'}"></div>
@@ -602,6 +609,7 @@
                     <div class="fade-in">
                         <div class="bg-primary-light border-l-4 border-primary p-3 sm:p-4 rounded-lg shadow-sm mb-4 sm:mb-6">
                             <h3 class="text-lg sm:text-xl font-semibold text-primary quiz-question">${question.question}</h3>
+                            ${isAnswered ? '<p class="locked-message">Resposta já selecionada - não pode ser alterada</p>' : ''}
                         </div>
                         <div class="space-y-2 sm:space-y-3">${optionsHtml}</div>
                     </div>
@@ -609,26 +617,6 @@
 
                 // Update progress bar
                 progressBar.style.width = `${((currentQuestion + 1) / questions.length) * 100}%`;
-
-                // Add event listeners to options
-                document.querySelectorAll('.option').forEach((option, index) => {
-                    option.addEventListener('click', function() {
-                        // Remove selected class from all options
-                        document.querySelectorAll('.option').forEach(opt => {
-                            opt.classList.remove('selected', 'border-primary');
-                            opt.querySelector('.radio-dot').classList.remove('bg-primary');
-                        });
-                        
-                        // Add selected class to clicked option
-                        this.classList.add('selected', 'border-primary');
-                        this.querySelector('.radio-dot').classList.add('bg-primary');
-                        
-                        // Update selected answer
-                        answers[currentQuestion] = index;
-                        
-                        updateNavigation();
-                    });
-                });
             }
 
             // Update navigation buttons
@@ -638,7 +626,7 @@
                 submitBtn.classList.toggle('hidden', currentQuestion !== questions.length - 1);
                 
                 const isAnswered = answers[currentQuestion] !== undefined;
-                nextBtn.disabled = !isAnswered;
+                nextBtn.disabled = !isAnswered && currentQuestion !== questions.length - 1;
                 submitBtn.disabled = !isAnswered;
             }
 
@@ -846,13 +834,49 @@
             }
 
             // Event listeners
-            nextBtn.addEventListener('click', nextQuestion);
+            nextBtn.addEventListener('click', function() {
+                if (answers[currentQuestion] === undefined) {
+                    alert('Por favor, selecione uma resposta antes de continuar.');
+                    return;
+                }
+                nextQuestion();
+            });
+
             prevBtn.addEventListener('click', prevQuestion);
             submitBtn.addEventListener('click', showResults);
             restartBtn.addEventListener('click', restartQuiz);
             toggleAnswersBtn.addEventListener('click', toggleAnswersVisibility);
             themeToggle.addEventListener('click', toggleTheme);
             shareBtn.addEventListener('click', shareResults);
+
+            // Handle option selection
+            document.addEventListener('click', function(e) {
+                if (e.target.closest('.option') && !e.target.closest('.locked')) {
+                    const option = e.target.closest('.option');
+                    const questionContainer = option.closest('#quiz-container');
+                    const questionIndex = Array.from(questionContainer.children).indexOf(option.closest('.fade-in'));
+                    
+                    const input = option.querySelector('input');
+                    const value = parseInt(input.value);
+                    
+                    // Remove selected class from all options in this question
+                    const options = questionContainer.querySelectorAll('.option');
+                    options.forEach(opt => {
+                        opt.classList.remove('selected', 'border-primary');
+                        opt.querySelector('.radio-dot').classList.remove('bg-primary');
+                    });
+                    
+                    // Add selected class to clicked option
+                    option.classList.add('selected', 'border-primary');
+                    option.querySelector('.radio-dot').classList.add('bg-primary');
+                    input.checked = true;
+                    
+                    // Save answer
+                    answers[currentQuestion] = value;
+                    
+                    updateNavigation();
+                }
+            });
         });
     </script>
 </body>
