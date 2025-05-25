@@ -38,6 +38,7 @@
         .option {
             transition: all 0.3s ease;
             transform: scale(1);
+            -webkit-tap-highlight-color: transparent;
         }
         
         .option:hover {
@@ -66,11 +67,16 @@
         }
         
         .professional-illustration {
-            background-image: url('https://img.freepik.com/free-vector/business-team-putting-together-jigsaw-puzzle-isolated-flat-vector-illustration-cartoon-partners-working-connection-teamwork-partnership-cooperation-concept_74855-9814.jpg');
             background-size: contain;
             background-repeat: no-repeat;
             background-position: center;
             height: 200px;
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+            background-image: url('soft-vs-hard-skills.jpg');
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
         
         @media (min-width: 768px) {
@@ -101,6 +107,7 @@
             --gradient-start: #f9a8d4;
             --gradient-end: #f472b6;
             --progress-color: #db2777;
+            --result-icon-color: gold;
         }
 
         .theme-pink {
@@ -111,26 +118,41 @@
             --gradient-start: #f9a8d4;
             --gradient-end: #f472b6;
             --progress-color: #db2777;
+            --result-icon-color: gold;
         }
 
-        .theme-green {
-            --primary-color: #10b981;
-            --primary-light: #d1fae5;
-            --selected-color: #10b981;
-            --selected-bg: #d1fae5;
-            --gradient-start: #6ee7b7;
-            --gradient-end: #34d399;
-            --progress-color: #10b981;
+        .theme-blue {
+            --primary-color: #3b82f6;
+            --primary-light: #dbeafe;
+            --selected-color: #3b82f6;
+            --selected-bg: #dbeafe;
+            --gradient-start: #93c5fd;
+            --gradient-end: #60a5fa;
+            --progress-color: #3b82f6;
+            --result-icon-color: #fcd34d;
+        }
+
+        .theme-purple {
+            --primary-color: #8b5cf6;
+            --primary-light: #ede9fe;
+            --selected-color: #8b5cf6;
+            --selected-bg: #ede9fe;
+            --gradient-start: #c4b5fd;
+            --gradient-end: #a78bfa;
+            --progress-color: #8b5cf6;
+            --result-icon-color: #a5b4fc;
         }
 
         body {
             background-color: var(--bg-color);
             color: var(--text-color);
-            transition: background-color 0.3s ease;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .btn-primary {
             background-color: var(--primary-color);
+            -webkit-appearance: none;
         }
 
         .btn-primary:hover {
@@ -192,6 +214,7 @@
             max-height: 400px;
             overflow-y: auto;
             padding-right: 0.5rem;
+            -webkit-overflow-scrolling: touch;
         }
 
         .answers-container::-webkit-scrollbar {
@@ -226,6 +249,7 @@
             cursor: pointer;
             transition: all 0.3s ease;
             margin-bottom: 1rem;
+            -webkit-appearance: none;
         }
 
         .toggle-answers-btn:hover {
@@ -266,6 +290,7 @@
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             z-index: 100;
             transition: all 0.3s ease;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .theme-toggle:hover {
@@ -276,7 +301,7 @@
             font-size: 3rem;
             margin-bottom: 1rem;
             animation: pulse 2s infinite;
-            color: gold;
+            color: var(--result-icon-color);
             text-shadow: 0 0 10px rgba(255, 215, 0, 0.7);
         }
 
@@ -290,9 +315,9 @@
             font-size: 2rem;
             font-weight: bold;
             margin: 1rem 0;
-            background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            color: white;
+            -webkit-text-fill-color: white;
+            text-fill-color: white;
             animation: fadeIn 1s ease-out;
         }
 
@@ -326,6 +351,23 @@
             
             .nav-button {
                 width: 100%;
+            }
+        }
+
+        /* Safari specific fixes */
+        @supports (-webkit-touch-callout: none) {
+            .result-percentage {
+                -webkit-text-fill-color: white;
+                text-fill-color: white;
+                color: white;
+            }
+            
+            .option {
+                -webkit-tap-highlight-color: transparent;
+            }
+            
+            button, input[type="button"], input[type="submit"] {
+                -webkit-appearance: none;
             }
         }
     </style>
@@ -364,10 +406,7 @@
         </div>
 
         <!-- Navigation -->
-        <div class="flex flex-col sm:flex-row justify-between gap-2 sm:gap-0 mt-8 md:mt-12 fade-in navigation-buttons">
-            <button id="prev-btn" class="hidden btn-primary hover:bg-primary-700 text-white font-bold py-2 px-4 sm:py-3 sm:px-6 rounded-full shadow-lg transition-all transform hover:scale-105 nav-button">
-                <i class="fas fa-arrow-left mr-2"></i> Anterior
-            </button>
+        <div class="flex justify-center gap-4 mt-8 md:mt-12 fade-in navigation-buttons">
             <button id="next-btn" class="btn-primary hover:bg-primary-700 text-white font-bold py-2 px-4 sm:py-3 sm:px-6 rounded-full shadow-lg transition-all transform hover:scale-105 nav-button">
                 Próxima <i class="fas fa-arrow-right ml-2"></i>
             </button>
@@ -513,7 +552,8 @@
             let answers = [];
             let hardCount = 0;
             let softCount = 0;
-            let currentTheme = 'pink';
+            const themes = ['pink', 'blue', 'purple'];
+            let currentThemeIndex = 0;
             let answersVisible = false;
 
             // DOM elements
@@ -521,7 +561,6 @@
             const quizScreen = document.getElementById('quiz-screen');
             const startQuizBtn = document.getElementById('start-quiz-btn');
             const quizContainer = document.getElementById('quiz-container');
-            const prevBtn = document.getElementById('prev-btn');
             const nextBtn = document.getElementById('next-btn');
             const submitBtn = document.getElementById('submit-btn');
             const resultsContainer = document.getElementById('results-container');
@@ -540,14 +579,44 @@
             const shareBtn = document.getElementById('share-btn');
             const confettiCanvas = document.getElementById('confetti-canvas');
 
-            // Toggle between pink and green themes
+            // Toggle between themes
             function toggleTheme() {
-                currentTheme = currentTheme === 'pink' ? 'green' : 'pink';
-                body.classList.remove('theme-pink', 'theme-green');
-                body.classList.add(`theme-${currentTheme}`);
+                currentThemeIndex = (currentThemeIndex + 1) % themes.length;
+                const newTheme = themes[currentThemeIndex];
+                
+                // Remove all theme classes
+                body.classList.remove('theme-pink', 'theme-blue', 'theme-purple');
+                // Add new theme class
+                body.classList.add(`theme-${newTheme}`);
                 
                 // Update theme toggle icon
-                themeToggle.innerHTML = currentTheme === 'pink' ? '<i class="fas fa-palette"></i>' : '<i class="fas fa-paint-brush"></i>';
+                const icons = {
+                    'pink': 'fa-palette',
+                    'blue': 'fa-paint-brush',
+                    'purple': 'fa-fill-drip'
+                };
+                themeToggle.innerHTML = `<i class="fas ${icons[newTheme]}"></i>`;
+                
+                // Update UI elements that need immediate refresh
+                updateThemeDependentElements();
+            }
+
+            // Update elements that need theme refresh
+            function updateThemeDependentElements() {
+                // Update progress bar color
+                progressBar.className = 'progress-bar progress-color h-2.5 rounded-full';
+                
+                // Update selected options
+                document.querySelectorAll('.option.selected').forEach(option => {
+                    option.classList.add('border-primary');
+                    option.querySelector('.radio-dot').classList.add('bg-primary');
+                });
+                
+                // Update result icon color
+                const resultIcon = document.querySelector('.result-icon i');
+                if (resultIcon) {
+                    resultIcon.style.color = 'var(--result-icon-color)';
+                }
             }
 
             // Start the quiz
@@ -559,15 +628,6 @@
 
             // Initialize the quiz
             function initQuiz() {
-                // Alternate theme for each question
-                if (currentQuestion % 2 === 0) {
-                    body.classList.remove('theme-green');
-                    body.classList.add('theme-pink');
-                } else {
-                    body.classList.remove('theme-pink');
-                    body.classList.add('theme-green');
-                }
-                
                 renderQuestion();
                 updateNavigation();
             }
@@ -576,15 +636,6 @@
             function renderQuestion() {
                 const question = questions[currentQuestion];
                 const isAnswered = answers[currentQuestion] !== undefined;
-                
-                // Apply theme based on question index
-                if (currentQuestion % 2 === 0) {
-                    body.classList.remove('theme-green');
-                    body.classList.add('theme-pink');
-                } else {
-                    body.classList.remove('theme-pink');
-                    body.classList.add('theme-green');
-                }
                 
                 let optionsHtml = '';
                 question.options.forEach((option, index) => {
@@ -621,7 +672,6 @@
 
             // Update navigation buttons
             function updateNavigation() {
-                prevBtn.classList.toggle('hidden', currentQuestion === 0);
                 nextBtn.classList.toggle('hidden', currentQuestion === questions.length - 1);
                 submitBtn.classList.toggle('hidden', currentQuestion !== questions.length - 1);
                 
@@ -632,17 +682,13 @@
 
             // Show next question
             function nextQuestion() {
+                if (answers[currentQuestion] === undefined) {
+                    alert('Por favor, selecione uma resposta antes de continuar.');
+                    return;
+                }
+                
                 if (currentQuestion < questions.length - 1) {
                     currentQuestion++;
-                    renderQuestion();
-                    updateNavigation();
-                }
-            }
-
-            // Show previous question
-            function prevQuestion() {
-                if (currentQuestion > 0) {
-                    currentQuestion--;
                     renderQuestion();
                     updateNavigation();
                 }
@@ -765,10 +811,15 @@
                 animateCount(hardCountEl, hardCount);
                 animateCount(softCountEl, softCount);
                 
-                // Update percentage
-                const percentageText = hardCount > softCount ? 
-                    `${hardPercentage}% Hard Skills` : 
-                    `${softPercentage}% Soft Skills`;
+                // Update percentage - SEMPRE EM BRANCO
+                let percentageText;
+                if (hardCount > softCount) {
+                    const hardPercentage = Math.round((hardCount / totalQuestions) * 100);
+                    percentageText = `${hardPercentage}% Hard Skills`;
+                } else {
+                    const softPercentage = Math.round((softCount / totalQuestions) * 100);
+                    percentageText = `${softPercentage}% Soft Skills`;
+                }
                 resultPercentage.textContent = percentageText;
                 
                 // Generate answers review
@@ -834,15 +885,7 @@
             }
 
             // Event listeners
-            nextBtn.addEventListener('click', function() {
-                if (answers[currentQuestion] === undefined) {
-                    alert('Por favor, selecione uma resposta antes de continuar.');
-                    return;
-                }
-                nextQuestion();
-            });
-
-            prevBtn.addEventListener('click', prevQuestion);
+            nextBtn.addEventListener('click', nextQuestion);
             submitBtn.addEventListener('click', showResults);
             restartBtn.addEventListener('click', restartQuiz);
             toggleAnswersBtn.addEventListener('click', toggleAnswersVisibility);
