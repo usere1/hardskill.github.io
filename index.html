@@ -42,7 +42,7 @@
         
         .option:hover {
             transform: scale(1.02);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
         
         .option.selected {
@@ -65,7 +65,13 @@
             background-size: contain;
             background-repeat: no-repeat;
             background-position: center;
-            height: 300px;
+            height: 200px;
+        }
+        
+        @media (min-width: 768px) {
+            .professional-illustration {
+                height: 300px;
+            }
         }
         
         .radio-dot {
@@ -262,21 +268,33 @@
         }
 
         .result-icon {
-            font-size: 4rem;
+            font-size: 3rem;
             margin-bottom: 1rem;
             animation: pulse 2s infinite;
             color: gold;
             text-shadow: 0 0 10px rgba(255, 215, 0, 0.7);
         }
 
+        @media (min-width: 768px) {
+            .result-icon {
+                font-size: 4rem;
+            }
+        }
+
         .result-percentage {
-            font-size: 3rem;
+            font-size: 2rem;
             font-weight: bold;
             margin: 1rem 0;
             background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             animation: fadeIn 1s ease-out;
+        }
+
+        @media (min-width: 768px) {
+            .result-percentage {
+                font-size: 3rem;
+            }
         }
 
         /* Garantindo que todos os botões primários tenham a mesma aparência */
@@ -286,6 +304,26 @@
 
         .btn-primary:hover, #submit-btn:hover {
             background-color: color-mix(in srgb, var(--primary-color) 90%, black) !important;
+        }
+
+        /* Ajustes para mobile */
+        @media (max-width: 640px) {
+            .quiz-option-text {
+                font-size: 0.9rem;
+            }
+            
+            .quiz-question {
+                font-size: 1.1rem;
+            }
+            
+            .navigation-buttons {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .nav-button {
+                width: 100%;
+            }
         }
     </style>
 </head>
@@ -297,65 +335,65 @@
 
     <!-- Introduction Screen -->
     <div id="intro-screen" class="container mx-auto px-4 py-8 max-w-3xl text-center fade-in">
-        <div class="professional-illustration mb-8"></div>
-        <h1 class="text-4xl md:text-5xl font-bold text-primary mb-6">Quiz de Habilidades Profissionais</h1>
-        <p class="text-xl text-primary mb-8">Descubra se suas habilidades são mais técnicas (Hard Skills) ou comportamentais (Soft Skills)</p>
-        <p class="text-lg text-gray-800 mb-10">Responda 8 perguntas simples e descubra seu perfil profissional!</p>
-        <button id="start-quiz-btn" class="btn-primary hover:bg-primary-700 text-white font-bold py-4 px-8 rounded-full shadow-lg transition-all text-lg transform hover:scale-105 pulse">
+        <div class="professional-illustration mb-6"></div>
+        <h1 class="text-3xl md:text-4xl lg:text-5xl font-bold text-primary mb-4">Quiz de Habilidades Profissionais</h1>
+        <p class="text-lg md:text-xl text-primary mb-6">Descubra se suas habilidades são mais técnicas (Hard Skills) ou comportamentais (Soft Skills)</p>
+        <p class="text-base md:text-lg text-gray-800 mb-8">Responda 8 perguntas simples e descubra seu perfil profissional!</p>
+        <button id="start-quiz-btn" class="btn-primary hover:bg-primary-700 text-white font-bold py-3 px-6 md:py-4 md:px-8 rounded-full shadow-lg transition-all transform hover:scale-105 pulse text-base md:text-lg">
             Iniciar Quiz <i class="fas fa-play ml-2"></i>
         </button>
     </div>
 
     <!-- Quiz Container (hidden initially) -->
-    <div id="quiz-screen" class="container mx-auto px-4 py-8 max-w-3xl hidden">
+    <div id="quiz-screen" class="container mx-auto px-4 py-6 md:py-8 max-w-3xl hidden">
         <!-- Header -->
-        <header class="text-center mb-12 fade-in">
-            <h1 class="text-4xl md:text-5xl font-bold text-primary mb-4">Quiz de Habilidades Profissionais</h1>
-            <p class="text-lg text-primary">Descubra se suas habilidades são mais técnicas ou comportamentais</p>
-            <div class="w-full bg-gray-200 rounded-full h-2.5 mt-6">
+        <header class="text-center mb-8 md:mb-12 fade-in">
+            <h1 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-primary mb-3 md:mb-4">Quiz de Habilidades Profissionais</h1>
+            <p class="text-sm md:text-base lg:text-lg text-primary mb-4">Descubra se suas habilidades são mais técnicas ou comportamentais</p>
+            <div class="w-full bg-gray-200 rounded-full h-2.5 mt-4 md:mt-6">
                 <div id="progress" class="progress-bar progress-color h-2.5 rounded-full" style="width: 0%"></div>
             </div>
         </header>
 
         <!-- Quiz Container -->
-        <div id="quiz-container" class="space-y-8">
+        <div id="quiz-container" class="space-y-4 md:space-y-6">
             <!-- Questions will be inserted here by JavaScript -->
         </div>
 
         <!-- Navigation -->
-        <div class="flex justify-between mt-12 fade-in">
-            <button id="prev-btn" class="hidden btn-primary hover:bg-primary-700 text-white font-bold py-3 px-6 rounded-full shadow-lg transition-all transform hover:scale-105">
+        <div class="flex flex-col sm:flex-row justify-between gap-2 sm:gap-0 mt-8 md:mt-12 fade-in navigation-buttons">
+            <button id="prev-btn" class="hidden btn-primary hover:bg-primary-700 text-white font-bold py-2 px-4 sm:py-3 sm:px-6 rounded-full shadow-lg transition-all transform hover:scale-105 nav-button">
                 <i class="fas fa-arrow-left mr-2"></i> Anterior
             </button>
-            <button id="next-btn" class="ml-auto btn-primary hover:bg-primary-700 text-white font-bold py-3 px-6 rounded-full shadow-lg transition-all transform hover:scale-105">
+            <button id="next-btn" class="btn-primary hover:bg-primary-700 text-white font-bold py-2 px-4 sm:py-3 sm:px-6 rounded-full shadow-lg transition-all transform hover:scale-105 nav-button">
                 Próxima <i class="fas fa-arrow-right ml-2"></i>
             </button>
-            <button id="submit-btn" class="hidden ml-auto btn-primary hover:bg-primary-700 text-white font-bold py-3 px-6 rounded-full shadow-lg transition-all transform hover:scale-105">
+            <button id="submit-btn" class="hidden btn-primary hover:bg-primary-700 text-white font-bold py-2 px-4 sm:py-3 sm:px-6 rounded-full shadow-lg transition-all transform hover:scale-105 nav-button">
                 Ver Resultado <i class="fas fa-trophy ml-2"></i>
             </button>
         </div>
 
         <!-- Results Container (hidden initially) -->
-        <div id="results-container" class="hidden mt-8 result-card rounded-xl p-8 text-white shadow-xl">
+        <div id="results-container" class="hidden mt-6 md:mt-8 result-card rounded-xl p-6 md:p-8 text-white shadow-xl">
             <div class="text-center">
                 <div class="result-icon">
-                    <i class="fas fa-trophy"></i> <!-- Ícone de troféu -->
+                    <i class="fas fa-trophy"></i>
                 </div>
-                <h2 class="text-3xl font-bold mb-4">Seu Resultado</h2>
-                <div id="result-text" class="text-xl mb-6"></div>
-                <div id="result-details" class="mb-8 text-lg"></div>
+                <h2 class="text-2xl md:text-3xl font-bold mb-3 md:mb-4">Seu Resultado</h2>
+                <div id="result-text" class="text-lg md:text-xl mb-4 md:mb-6"></div>
+                <div id="result-details" class="text-base md:text-lg mb-6 md:mb-8"></div>
                 
                 <div class="result-percentage" id="result-percentage">
                     0%
                 </div>
                 
-                <div class="flex justify-center space-x-4 mb-6">
+                <div class="flex flex-col sm:flex-row justify-center gap-4 mb-6">
                     <div class="bg-white bg-opacity-20 p-4 rounded-lg transform hover:scale-105 transition-all">
-                        <div class="text-2xl font-bold count-up" id="hard-count">0</div>
+                        <div class="text-xl md:text-2xl font-bold count-up" id="hard-count">0</div>
                         <div>Hard Skills</div>
                     </div>
                     <div class="bg-white bg-opacity-20 p-4 rounded-lg transform hover:scale-105 transition-all">
-                        <div class="text-2xl font-bold count-up" id="soft-count">0</div>
+                        <div class="text-xl md:text-2xl font-bold count-up" id="soft-count">0</div>
                         <div>Soft Skills</div>
                     </div>
                 </div>
@@ -367,19 +405,21 @@
                 
                 <!-- Answers Review Section (hidden initially) -->
                 <div id="answers-review" class="answers-review">
-                    <h3 class="text-2xl font-bold mb-4 text-center">Suas Respostas</h3>
+                    <h3 class="text-xl md:text-2xl font-bold mb-3 md:mb-4 text-center">Suas Respostas</h3>
                     <div id="answers-list" class="answers-container">
                         <!-- Answers will be inserted here by JavaScript -->
                     </div>
                 </div>
                 
-                <button id="restart-btn" class="bg-white text-primary hover:bg-gray-100 font-bold py-3 px-6 rounded-full shadow-lg transition-all transform hover:scale-105 mt-8">
-                    <i class="fas fa-redo mr-2"></i> Fazer Novamente
-                </button>
-                
-                <button id="share-btn" class="bg-primary-800 hover:bg-primary-900 text-white font-bold py-3 px-6 rounded-full shadow-lg transition-all transform hover:scale-105 mt-4 ml-4">
-                    <i class="fas fa-share-alt mr-2"></i> Compartilhar
-                </button>
+                <div class="flex flex-col sm:flex-row justify-center gap-2 md:gap-4 mt-6 md:mt-8">
+                    <button id="restart-btn" class="bg-white text-primary hover:bg-gray-100 font-bold py-2 px-4 sm:py-3 sm:px-6 rounded-full shadow-lg transition-all transform hover:scale-105">
+                        <i class="fas fa-redo mr-2"></i> Fazer Novamente
+                    </button>
+                    
+                    <button id="share-btn" class="bg-primary-800 hover:bg-primary-900 text-white font-bold py-2 px-4 sm:py-3 sm:px-6 rounded-full shadow-lg transition-all transform hover:scale-105 mt-2 sm:mt-0">
+                        <i class="fas fa-share-alt mr-2"></i> Compartilhar
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -546,13 +586,13 @@
                 question.options.forEach((option, index) => {
                     const isSelected = answers[currentQuestion] === index;
                     optionsHtml += `
-                        <label class="option block bg-white p-4 rounded-lg mb-3 cursor-pointer transition-all shadow-md border-2 ${isSelected ? 'selected border-primary' : 'border-transparent'}">
+                        <label class="option block bg-white p-3 sm:p-4 rounded-lg mb-2 sm:mb-3 cursor-pointer transition-all shadow-md border-2 ${isSelected ? 'selected border-primary' : 'border-transparent'}">
                             <input type="radio" name="answer" value="${index}" ${isSelected ? 'checked' : ''} class="hidden">
                             <div class="flex items-center">
-                                <div class="flex-shrink-0 h-5 w-5 rounded-full border-2 border-primary flex items-center justify-center mr-3">
-                                    <div class="radio-dot h-3 w-3 rounded-full ${isSelected ? 'bg-primary' : 'bg-transparent'}"></div>
+                                <div class="flex-shrink-0 h-4 w-4 sm:h-5 sm:w-5 rounded-full border-2 border-primary flex items-center justify-center mr-2 sm:mr-3">
+                                    <div class="radio-dot h-2 w-2 sm:h-3 sm:w-3 rounded-full ${isSelected ? 'bg-primary' : 'bg-transparent'}"></div>
                                 </div>
-                                <span class="text-gray-800">${option.text}</span>
+                                <span class="text-gray-800 quiz-option-text text-sm sm:text-base">${option.text}</span>
                             </div>
                         </label>
                     `;
@@ -560,10 +600,10 @@
 
                 quizContainer.innerHTML = `
                     <div class="fade-in">
-                        <div class="bg-primary-light border-l-4 border-primary p-4 rounded-lg shadow-sm mb-6">
-                            <h3 class="text-xl font-semibold text-primary">${question.question}</h3>
+                        <div class="bg-primary-light border-l-4 border-primary p-3 sm:p-4 rounded-lg shadow-sm mb-4 sm:mb-6">
+                            <h3 class="text-lg sm:text-xl font-semibold text-primary quiz-question">${question.question}</h3>
                         </div>
-                        <div class="space-y-3">${optionsHtml}</div>
+                        <div class="space-y-2 sm:space-y-3">${optionsHtml}</div>
                     </div>
                 `;
 
@@ -631,9 +671,9 @@
                         const isHardSkill = selectedOption.value === 'hard';
                         
                         reviewHtml += `
-                            <div class="answer-item mb-4">
-                                <div class="text-lg font-semibold mb-2">${question.question}</div>
-                                <div class="answer-text">
+                            <div class="answer-item mb-3 sm:mb-4">
+                                <div class="text-base sm:text-lg font-semibold mb-1 sm:mb-2">${question.question}</div>
+                                <div class="answer-text text-sm sm:text-base">
                                     ${selectedOption.text}
                                     <span class="skill-type ${isHardSkill ? 'hard-skill' : 'soft-skill'}">
                                         ${isHardSkill ? 'Hard Skill' : 'Soft Skill'}
