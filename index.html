@@ -276,6 +276,15 @@
             -webkit-text-fill-color: transparent;
             animation: fadeIn 1s ease-out;
         }
+
+        /* Garantindo que todos os botões primários tenham a mesma aparência */
+        .btn-primary, #submit-btn {
+            background-color: var(--primary-color) !important;
+        }
+
+        .btn-primary:hover, #submit-btn:hover {
+            background-color: color-mix(in srgb, var(--primary-color) 90%, black) !important;
+        }
     </style>
 </head>
 <body class="min-h-screen font-sans theme-pink">
@@ -319,7 +328,7 @@
             <button id="next-btn" class="ml-auto btn-primary hover:bg-primary-700 text-white font-bold py-3 px-6 rounded-full shadow-lg transition-all transform hover:scale-105">
                 Próxima <i class="fas fa-arrow-right ml-2"></i>
             </button>
-            <button id="submit-btn" class="hidden ml-auto bg-primary-800 hover:bg-primary-900 text-white font-bold py-3 px-6 rounded-full shadow-lg transition-all transform hover:scale-105">
+            <button id="submit-btn" class="hidden ml-auto btn-primary hover:bg-primary-700 text-white font-bold py-3 px-6 rounded-full shadow-lg transition-all transform hover:scale-105">
                 Ver Resultado <i class="fas fa-trophy ml-2"></i>
             </button>
         </div>
