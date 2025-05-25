@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz de Habilidades Profissionais</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        @keyframes countUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+        
+        .pulse {
+            animation: pulse 1.5s infinite;
+        }
+        
+        .count-up {
+            animation: countUp 0.5s ease-out forwards;
+        }
+        
+        .option {
+            transition: all 0.3s ease;
+            transform: scale(1);
+        }
+        
+        .option:hover {
+            transform: scale(1.02);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .option.selected {
+            transform: scale(1.02);
+            border-color: var(--selected-color) !important;
+            background-color: var(--selected-bg);
+        }
+        
+        .progress-bar {
+            transition: width 0.5s ease;
+        }
+        
+        .result-card {
+            background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        .professional-illustration {
+            background-image: url('https://img.freepik.com/free-vector/business-team-putting-together-jigsaw-puzzle-isolated-flat-vector-illustration-cartoon-partners-working-connection-teamwork-partnership-cooperation-concept_74855-9814.jpg');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            height: 300px;
+        }
+        
+        .radio-dot {
+            transition: all 0.3s ease;
+        }
+        
+        .option.selected .radio-dot {
+            background-color: var(--selected-color);
+            transform: scale(1);
+        }
+
+        /* Theme variables */
+        :root {
+            --primary-color: #db2777;
+            --primary-light: #fce7f3;
+            --secondary-color: #10b981;
+            --secondary-light: #d1fae5;
+            --text-color: #111827;
+            --bg-color: #f3f4f6;
+            --selected-color: #db2777;
+            --selected-bg: #fce7f3;
+            --gradient-start: #f9a8d4;
+            --gradient-end: #f472b6;
+            --progress-color: #db2777;
+        }
+
+        .theme-pink {
+            --primary-color: #db2777;
+            --primary-light: #fce7f3;
+            --selected-color: #db2777;
+            --selected-bg: #fce7f3;
+            --gradient-start: #f9a8d4;
+            --gradient-end: #f472b6;
+            --progress-color: #db2777;
+        }
+
+        .theme-green {
+            --primary-color: #10b981;
+            --primary-light: #d1fae5;
+            --selected-color: #10b981;
+            --selected-bg: #d1fae5;
+            --gradient-start: #6ee7b7;
+            --gradient-end: #34d399;
+            --progress-color: #10b981;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+        }
+
+        .btn-primary:hover {
+            background-color: color-mix(in srgb, var(--primary-color) 90%, black);
+        }
+
+        .text-primary {
+            color: var(--primary-color);
+        }
+
+        .bg-primary-light {
+            background-color: var(--primary-light);
+        }
+
+        .border-primary {
+            border-color: var(--primary-color);
+        }
+
+        .progress-color {
+            background-color: var(--progress-color);
+        }
+
+        .answer-item {
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .answer-item:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .answer-text {
+            font-weight: 600;
+        }
+
+        .skill-type {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+        }
+
+        .hard-skill {
+            background-color: var(--primary-light);
+            color: var(--primary-color);
+        }
+
+        .soft-skill {
+            background-color: var(--secondary-light);
+            color: var(--secondary-color);
+        }
+
+        .answers-container {
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 0.5rem;
+        }
+
+        .answers-container::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .answers-container::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        .answers-container::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+        }
+
+        .answers-review {
+            display: none;
+        }
+
+        .answers-review.show {
+            display: block;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .toggle-answers-btn {
+            background-color: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 1rem;
+        }
+
+        .toggle-answers-btn:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .toggle-answers-btn i {
+            transition: transform 0.3s ease;
+        }
+
+        .toggle-answers-btn.active i {
+            transform: rotate(180deg);
+        }
+
+        .confetti-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        .theme-toggle {
+            position: fixed;
+            bottom: 1rem;
+            right: 1rem;
+            background-color: var(--primary-color);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        .result-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            animation: pulse 2s infinite;
+        }
+
+        .result-percentage {
+            font-size: 3rem;
+            font-weight: bold;
+            margin: 1rem 0;
+            background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: fadeIn 1s ease-out;
+        }
+    </style>
+</head>
+<body class="min-h-screen font-sans theme-pink">
+    <!-- Theme Toggle Button -->
+    <div class="theme-toggle" id="theme-toggle">
+        <i class="fas fa-palette"></i>
+    </div>
+
+    <!-- Introduction Screen -->
+    <div id="intro-screen" class="container mx-auto px-4 py-8 max-w-3xl text-center fade-in">
+        <div class="professional-illustration mb-8"></div>
+        <h1 class="text-4xl md:text-5xl font-bold text-primary mb-6">Quiz de Habilidades Profissionais</h1>
+        <p class="text-xl text-primary mb-8">Descubra se suas habilidades são mais técnicas (Hard Skills) ou comportamentais (Soft Skills)</p>
+        <p class="text-lg text-gray-800 mb-10">Responda 8 perguntas simples e descubra seu perfil profissional!</p>
+        <button id="start-quiz-btn" class="btn-primary hover:bg-primary-700 text-white font-bold py-4 px-8 rounded-full shadow-lg transition-all text-lg transform hover:scale-105 pulse">
+            Iniciar Quiz <i class="fas fa-play ml-2"></i>
+        </button>
+    </div>
+
+    <!-- Quiz Container (hidden initially) -->
+    <div id="quiz-screen" class="container mx-auto px-4 py-8 max-w-3xl hidden">
+        <!-- Header -->
+        <header class="text-center mb-12 fade-in">
+            <h1 class="text-4xl md:text-5xl font-bold text-primary mb-4">Quiz de Habilidades Profissionais</h1>
+            <p class="text-lg text-primary">Descubra se suas habilidades são mais técnicas ou comportamentais</p>
+            <div class="w-full bg-gray-200 rounded-full h-2.5 mt-6">
+                <div id="progress" class="progress-bar progress-color h-2.5 rounded-full" style="width: 0%"></div>
+            </div>
+        </header>
+
+        <!-- Quiz Container -->
+        <div id="quiz-container" class="space-y-8">
+            <!-- Questions will be inserted here by JavaScript -->
+        </div>
+
+        <!-- Navigation -->
+        <div class="flex justify-between mt-12 fade-in">
+            <button id="prev-btn" class="hidden btn-primary hover:bg-primary-700 text-white font-bold py-3 px-6 rounded-full shadow-lg transition-all transform hover:scale-105">
+                <i class="fas fa-arrow-left mr-2"></i> Anterior
+            </button>
+            <button id="next-btn" class="ml-auto btn-primary hover:bg-primary-700 text-white font-bold py-3 px-6 rounded-full shadow-lg transition-all transform hover:scale-105">
+                Próxima <i class="fas fa-arrow-right ml-2"></i>
+            </button>
+            <button id="submit-btn" class="hidden ml-auto bg-primary-800 hover:bg-primary-900 text-white font-bold py-3 px-6 rounded-full shadow-lg transition-all transform hover:scale-105">
+                Ver Resultado <i class="fas fa-trophy ml-2"></i>
+            </button>
+        </div>
+
+        <!-- Results Container (hidden initially) -->
+        <div id="results-container" class="hidden mt-8 result-card rounded-xl p-8 text-white shadow-xl">
+            <div class="text-center">
+                <div class="result-icon">
+                    <i class="fas fa-award"></i>
+                </div>
+                <h2 class="text-3xl font-bold mb-4">Seu Resultado</h2>
+                <div id="result-text" class="text-xl mb-6"></div>
+                <div id="result-details" class="mb-8 text-lg"></div>
+                
+                <div class="result-percentage" id="result-percentage">
+                    0%
+                </div>
+                
+                <div class="flex justify-center space-x-4 mb-6">
+                    <div class="bg-white bg-opacity-20 p-4 rounded-lg transform hover:scale-105 transition-all">
+                        <div class="text-2xl font-bold count-up" id="hard-count">0</div>
+                        <div>Hard Skills</div>
+                    </div>
+                    <div class="bg-white bg-opacity-20 p-4 rounded-lg transform hover:scale-105 transition-all">
+                        <div class="text-2xl font-bold count-up" id="soft-count">0</div>
+                        <div>Soft Skills</div>
+                    </div>
+                </div>
+                
+                <!-- Toggle Answers Button -->
+                <button id="toggle-answers-btn" class="toggle-answers-btn mb-4">
+                    Ver Respostas Detalhadas <i class="fas fa-chevron-down ml-2"></i>
+                </button>
+                
+                <!-- Answers Review Section (hidden initially) -->
+                <div id="answers-review" class="answers-review">
+                    <h3 class="text-2xl font-bold mb-4 text-center">Suas Respostas</h3>
+                    <div id="answers-list" class="answers-container">
+                        <!-- Answers will be inserted here by JavaScript -->
+                    </div>
+                </div>
+                
+                <button id="restart-btn" class="bg-white text-primary hover:bg-gray-100 font-bold py-3 px-6 rounded-full shadow-lg transition-all transform hover:scale-105 mt-8">
+                    <i class="fas fa-redo mr-2"></i> Fazer Novamente
+                </button>
+                
+                <button id="share-btn" class="bg-primary-800 hover:bg-primary-900 text-white font-bold py-3 px-6 rounded-full shadow-lg transition-all transform hover:scale-105 mt-4 ml-4">
+                    <i class="fas fa-share-alt mr-2"></i> Compartilhar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confetti Canvas -->
+    <canvas id="confetti-canvas" class="confetti-canvas"></canvas>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Quiz questions and answers
+            const questions = [
+                {
+                    question: "1. Qual é a sua maior força em um projeto?",
+                    options: [
+                        { text: "a) Resolver problemas técnicos complexos", value: "hard" },
+                        { text: "b) Comunicar eficazmente com a equipe e stakeholders", value: "soft" },
+                        { text: "c) Gerenciar o tempo e priorizar tarefas", value: "soft" },
+                        { text: "d) Criar soluções inovadoras", value: "hard" }
+                    ]
+                },
+                {
+                    question: "2. O que você prefere fazer em seu trabalho?",
+                    options: [
+                        { text: "a) Desenvolver código e depurar", value: "hard" },
+                        { text: "b) Colaborar com colegas para alcançar um objetivo comum", value: "soft" },
+                        { text: "c) Planejar e organizar projetos", value: "soft" },
+                        { text: "d) Analisar dados e criar relatórios", value: "hard" }
+                    ]
+                },
+                {
+                    question: "3. Qual é a habilidade que você considera mais importante para o sucesso?",
+                    options: [
+                        { text: "a) Conhecimento técnico especializado", value: "hard" },
+                        { text: "b) Habilidades de comunicação e colaboração", value: "soft" },
+                        { text: "c) Gerenciamento de time e produtividade", value: "soft" },
+                        { text: "d) Pensamento crítico e resolução de problemas", value: "hard" }
+                    ]
+                },
+                {
+                    question: "4. Como você aborda um desafio no trabalho?",
+                    options: [
+                        { text: "a) Analisando o problema e encontrando uma solução técnica", value: "hard" },
+                        { text: "b) Discutindo com a equipe e encontrando uma solução colaborativa", value: "soft" },
+                        { text: "c) Priorizando tarefas e gerenciando o tempo", value: "soft" },
+                        { text: "d) Buscando feedback e ajustando a abordagem", value: "hard" }
+                    ]
+                },
+                {
+                    question: "5. Qual é o seu objetivo profissional?",
+                    options: [
+                        { text: "a) Tornar-se um especialista técnico em uma área específica", value: "hard" },
+                        { text: "b) Desenvolver habilidades de liderança e gerenciamento", value: "soft" },
+                        { text: "c) Trabalhar em uma equipe diversificada e colaborativa", value: "soft" },
+                        { text: "d) Criar soluções inovadoras e empreendedoras", value: "hard" }
+                    ]
+                },
+                {
+                    question: "6. O que você valoriza mais em um ambiente de trabalho?",
+                    options: [
+                        { text: "a) Oportunidades de aprendizado e desenvolvimento técnico", value: "hard" },
+                        { text: "b) Trabalho em equipe e colaboração", value: "soft" },
+                        { text: "c) Flexibilidade e autonomia", value: "soft" },
+                        { text: "d) Reconhecimento e recompensa", value: "hard" }
+                    ]
+                },
+                {
+                    question: "7. Como você lida com mudanças no trabalho?",
+                    options: [
+                        { text: "a) Analisando as mudanças e adaptando meu plano de ação", value: "hard" },
+                        { text: "b) Discutindo com a equipe e encontrando uma solução conjunta", value: "soft" },
+                        { text: "c) Priorizando tarefas e ajustando meu cronograma", value: "soft" },
+                        { text: "d) Buscando feedback e ajustando minha abordagem", value: "hard" }
+                    ]
+                },
+                {
+                    question: "8. Qual é a sua maior satisfação no trabalho?",
+                    options: [
+                        { text: "a) Resolver problemas técnicos complexos", value: "hard" },
+                        { text: "b) Ver a equipe trabalhando em harmonia e alcançando objetivos", value: "soft" },
+                        { text: "c) Cumprir prazos e alcançar metas", value: "soft" },
+                        { text: "d) Criar soluções inovadoras e criativas", value: "hard" }
+                    ]
+                }
+            ];
+
+            // Quiz state
+            let currentQuestion = 0;
+            let answers = [];
+            let hardCount = 0;
+            let softCount = 0;
+            let currentTheme = 'pink';
+            let answersVisible = false;
+
+            // DOM elements
+            const introScreen = document.getElementById('intro-screen');
+            const quizScreen = document.getElementById('quiz-screen');
+            const startQuizBtn = document.getElementById('start-quiz-btn');
+            const quizContainer = document.getElementById('quiz-container');
+            const prevBtn = document.getElementById('prev-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const submitBtn = document.getElementById('submit-btn');
+            const resultsContainer = document.getElementById('results-container');
+            const resultText = document.getElementById('result-text');
+            const resultDetails = document.getElementById('result-details');
+            const hardCountEl = document.getElementById('hard-count');
+            const softCountEl = document.getElementById('soft-count');
+            const restartBtn = document.getElementById('restart-btn');
+            const progressBar = document.getElementById('progress');
+            const answersReview = document.getElementById('answers-review');
+            const answersList = document.getElementById('answers-list');
+            const toggleAnswersBtn = document.getElementById('toggle-answers-btn');
+            const themeToggle = document.getElementById('theme-toggle');
+            const body = document.body;
+            const resultPercentage = document.getElementById('result-percentage');
+            const shareBtn = document.getElementById('share-btn');
+            const confettiCanvas = document.getElementById('confetti-canvas');
+
+            // Toggle between pink and green themes
+            function toggleTheme() {
+                currentTheme = currentTheme === 'pink' ? 'green' : 'pink';
+                body.classList.remove('theme-pink', 'theme-green');
+                body.classList.add(`theme-${currentTheme}`);
+                
+                // Update theme toggle icon
+                themeToggle.innerHTML = currentTheme === 'pink' ? '<i class="fas fa-palette"></i>' : '<i class="fas fa-paint-brush"></i>';
+            }
+
+            // Start the quiz
+            startQuizBtn.addEventListener('click', function() {
+                introScreen.classList.add('hidden');
+                quizScreen.classList.remove('hidden');
+                initQuiz();
+            });
+
+            // Initialize the quiz
+            function initQuiz() {
+                // Alternate theme for each question
+                if (currentQuestion % 2 === 0) {
+                    body.classList.remove('theme-green');
+                    body.classList.add('theme-pink');
+                } else {
+                    body.classList.remove('theme-pink');
+                    body.classList.add('theme-green');
+                }
+                
+                renderQuestion();
+                updateNavigation();
+            }
+
+            // Render current question
+            function renderQuestion() {
+                const question = questions[currentQuestion];
+                
+                // Apply theme based on question index
+                if (currentQuestion % 2 === 0) {
+                    body.classList.remove('theme-green');
+                    body.classList.add('theme-pink');
+                } else {
+                    body.classList.remove('theme-pink');
+                    body.classList.add('theme-green');
+                }
+                
+                let optionsHtml = '';
+                question.options.forEach((option, index) => {
+                    const isSelected = answers[currentQuestion] === index;
+                    optionsHtml += `
+                        <label class="option block bg-white p-4 rounded-lg mb-3 cursor-pointer transition-all shadow-md border-2 ${isSelected ? 'selected border-primary' : 'border-transparent'}">
+                            <input type="radio" name="answer" value="${index}" ${isSelected ? 'checked' : ''} class="hidden">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0 h-5 w-5 rounded-full border-2 border-primary flex items-center justify-center mr-3">
+                                    <div class="radio-dot h-3 w-3 rounded-full ${isSelected ? 'bg-primary' : 'bg-transparent'}"></div>
+                                </div>
+                                <span class="text-gray-800">${option.text}</span>
+                            </div>
+                        </label>
+                    `;
+                });
+
+                quizContainer.innerHTML = `
+                    <div class="fade-in">
+                        <div class="bg-primary-light border-l-4 border-primary p-4 rounded-lg shadow-sm mb-6">
+                            <h3 class="text-xl font-semibold text-primary">${question.question}</h3>
+                        </div>
+                        <div class="space-y-3">${optionsHtml}</div>
+                    </div>
+                `;
+
+                // Update progress bar
+                progressBar.style.width = `${((currentQuestion + 1) / questions.length) * 100}%`;
+
+                // Add event listeners to options
+                document.querySelectorAll('.option').forEach((option, index) => {
+                    option.addEventListener('click', function() {
+                        // Remove selected class from all options
+                        document.querySelectorAll('.option').forEach(opt => {
+                            opt.classList.remove('selected', 'border-primary');
+                            opt.querySelector('.radio-dot').classList.remove('bg-primary');
+                        });
+                        
+                        // Add selected class to clicked option
+                        this.classList.add('selected', 'border-primary');
+                        this.querySelector('.radio-dot').classList.add('bg-primary');
+                        
+                        // Update selected answer
+                        answers[currentQuestion] = index;
+                        
+                        updateNavigation();
+                    });
+                });
+            }
+
+            // Update navigation buttons
+            function updateNavigation() {
+                prevBtn.classList.toggle('hidden', currentQuestion === 0);
+                nextBtn.classList.toggle('hidden', currentQuestion === questions.length - 1);
+                submitBtn.classList.toggle('hidden', currentQuestion !== questions.length - 1);
+                
+                const isAnswered = answers[currentQuestion] !== undefined;
+                nextBtn.disabled = !isAnswered;
+                submitBtn.disabled = !isAnswered;
+            }
+
+            // Show next question
+            function nextQuestion() {
+                if (currentQuestion < questions.length - 1) {
+                    currentQuestion++;
+                    renderQuestion();
+                    updateNavigation();
+                }
+            }
+
+            // Show previous question
+            function prevQuestion() {
+                if (currentQuestion > 0) {
+                    currentQuestion--;
+                    renderQuestion();
+                    updateNavigation();
+                }
+            }
+
+            // Generate the answers review HTML
+            function generateAnswersReview() {
+                let reviewHtml = '';
+                
+                questions.forEach((question, index) => {
+                    const answerIndex = answers[index];
+                    if (answerIndex !== undefined) {
+                        const selectedOption = question.options[answerIndex];
+                        const isHardSkill = selectedOption.value === 'hard';
+                        
+                        reviewHtml += `
+                            <div class="answer-item mb-4">
+                                <div class="text-lg font-semibold mb-2">${question.question}</div>
+                                <div class="answer-text">
+                                    ${selectedOption.text}
+                                    <span class="skill-type ${isHardSkill ? 'hard-skill' : 'soft-skill'}">
+                                        ${isHardSkill ? 'Hard Skill' : 'Soft Skill'}
+                                    </span>
+                                </div>
+                            </div>
+                        `;
+                    }
+                });
+                
+                return reviewHtml;
+            }
+
+            // Toggle answers visibility
+            function toggleAnswersVisibility() {
+                answersVisible = !answersVisible;
+                
+                if (answersVisible) {
+                    answersReview.classList.add('show');
+                    toggleAnswersBtn.classList.add('active');
+                    toggleAnswersBtn.innerHTML = 'Ocultar Respostas Detalhadas <i class="fas fa-chevron-up ml-2"></i>';
+                } else {
+                    answersReview.classList.remove('show');
+                    toggleAnswersBtn.classList.remove('active');
+                    toggleAnswersBtn.innerHTML = 'Ver Respostas Detalhadas <i class="fas fa-chevron-down ml-2"></i>';
+                }
+            }
+
+            // Animate counting up
+            function animateCount(element, target) {
+                let current = 0;
+                const increment = target / 20;
+                const timer = setInterval(() => {
+                    current += increment;
+                    if (current >= target) {
+                        clearInterval(timer);
+                        current = target;
+                    }
+                    element.textContent = Math.floor(current);
+                }, 50);
+            }
+
+            // Fire confetti
+            function fireConfetti() {
+                confettiCanvas.width = window.innerWidth;
+                confettiCanvas.height = window.innerHeight;
+                
+                const confetti = confetti.create(confettiCanvas, {
+                    resize: true,
+                    useWorker: true
+                });
+                
+                confetti({
+                    particleCount: 150,
+                    spread: 70,
+                    origin: { y: 0.6 }
+                });
+            }
+
+            // Calculate and show results
+            function showResults() {
+                // Count hard and soft skills
+                hardCount = 0;
+                softCount = 0;
+                
+                answers.forEach((answer, index) => {
+                    const question = questions[index];
+                    const selectedOption = question.options[answer];
+                    
+                    if (selectedOption.value === 'hard') {
+                        hardCount++;
+                    } else {
+                        softCount++;
+                    }
+                });
+                
+                // Determine result
+                let result, details, icon;
+                const totalQuestions = questions.length;
+                const hardPercentage = Math.round((hardCount / totalQuestions) * 100);
+                const softPercentage = Math.round((softCount / totalQuestions) * 100);
+                
+                if (hardCount > softCount + 2) {
+                    result = "Você se identifica mais com Hard Skills!";
+                    details = "Você tem um perfil mais técnico, com forte orientação para resolver problemas complexos e desenvolver soluções inovadoras. Suas habilidades técnicas são seu ponto forte!";
+                    icon = "fas fa-code";
+                } else if (softCount > hardCount + 2) {
+                    result = "Você se identifica mais com Soft Skills!";
+                    details = "Seu perfil é mais comportamental, com excelentes habilidades de comunicação, trabalho em equipe e gestão. Você brilha na colaboração e na construção de relacionamentos!";
+                    icon = "fas fa-users";
+                } else {
+                    result = "Você tem um equilíbrio entre Hard e Soft Skills!";
+                    details = "Você possui uma combinação valiosa de habilidades técnicas e comportamentais. Essa versatilidade permite que você se adapte a diferentes desafios e contextos profissionais.";
+                    icon = "fas fa-balance-scale";
+                }
+                
+                // Update UI
+                resultText.textContent = result;
+                resultDetails.textContent = details;
+                document.querySelector('.result-icon i').className = icon;
+                
+                // Animate counting
+                animateCount(hardCountEl, hardCount);
+                animateCount(softCountEl, softCount);
+                
+                // Update percentage
+                const percentageText = hardCount > softCount ? 
+                    `${hardPercentage}% Hard Skills` : 
+                    `${softPercentage}% Soft Skills`;
+                resultPercentage.textContent = percentageText;
+                
+                // Generate answers review
+                answersList.innerHTML = generateAnswersReview();
+                
+                // Reset answers visibility state
+                answersVisible = false;
+                answersReview.classList.remove('show');
+                toggleAnswersBtn.classList.remove('active');
+                toggleAnswersBtn.innerHTML = 'Ver Respostas Detalhadas <i class="fas fa-chevron-down ml-2"></i>';
+                
+                // Show results and hide quiz
+                quizContainer.classList.add('hidden');
+                resultsContainer.classList.remove('hidden');
+                
+                // Fire confetti
+                setTimeout(fireConfetti, 500);
+            }
+
+            // Share results
+            function shareResults() {
+                const result = resultText.textContent;
+                const details = resultDetails.textContent;
+                const shareText = `Meu resultado no Quiz de Habilidades Profissionais: ${result}\n\n${details}\n\nFaça o quiz você também!`;
+                
+                if (navigator.share) {
+                    navigator.share({
+                        title: 'Quiz de Habilidades Profissionais',
+                        text: shareText,
+                        url: window.location.href
+                    }).catch(err => {
+                        console.log('Erro ao compartilhar:', err);
+                        fallbackShare(shareText);
+                    });
+                } else {
+                    fallbackShare(shareText);
+                }
+            }
+
+            // Fallback for sharing
+            function fallbackShare(text) {
+                // Copy to clipboard
+                navigator.clipboard.writeText(text).then(() => {
+                    alert('Resultado copiado para a área de transferência! Cole nas suas redes sociais.');
+                }).catch(err => {
+                    prompt('Copie o texto abaixo para compartilhar:', text);
+                });
+            }
+
+            // Restart quiz
+            function restartQuiz() {
+                currentQuestion = 0;
+                answers = [];
+                hardCount = 0;
+                softCount = 0;
+                answersVisible = false;
+                
+                quizContainer.classList.remove('hidden');
+                resultsContainer.classList.add('hidden');
+                
+                renderQuestion();
+                updateNavigation();
+            }
+
+            // Event listeners
+            nextBtn.addEventListener('click', nextQuestion);
+            prevBtn.addEventListener('click', prevQuestion);
+            submitBtn.addEventListener('click', showResults);
+            restartBtn.addEventListener('click', restartQuiz);
+            toggleAnswersBtn.addEventListener('click', toggleAnswersVisibility);
+            themeToggle.addEventListener('click', toggleTheme);
+            shareBtn.addEventListener('click', shareResults);
+        });
+    </script>
+</body>
+</html>
