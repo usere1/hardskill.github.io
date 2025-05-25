@@ -67,19 +67,26 @@
         }
         
         .professional-illustration {
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            height: 250px;
             width: 100%;
-            max-width: 600px;
-            height: auto;
-            aspect-ratio: 16/9;
+            max-width: 100%;
             margin: 0 auto 2rem;
-            object-fit: contain;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            background-image: url('soft-vs-hard-skills.jpg');
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            padding: 12px;
+            border: 1px solid rgba(0, 0, 0, 0.08);
         }
         
-        @media (max-width: 768px) {
+        @media (min-width: 468px) {
             .professional-illustration {
-                max-width: 100%;
+                height: 250px;
+                max-width: 29%;
+                padding: 30px;
             }
         }
         
@@ -350,6 +357,11 @@
             .nav-button {
                 width: 100%;
             }
+
+            .professional-illustration {
+                height: 220px;
+                padding: 15px;
+            }
         }
 
         /* Safari specific fixes */
@@ -377,8 +389,8 @@
     </div>
 
     <!-- Introduction Screen -->
-    <div id="intro-screen" class="container mx-auto px-4 py-8 max-w-3xl text-center fade-in">
-        <img src="soft-vs-hard-skills.jpg" alt="Soft Skills vs Hard Skills" class="professional-illustration">
+    <div id="intro-screen" class="container mx-auto px-4 py-8 max-w-4xl text-center fade-in">
+        <div class="professional-illustration"></div>
         <h1 class="text-3xl md:text-4xl lg:text-5xl font-bold text-primary mb-4">Quiz de Habilidades Profissionais</h1>
         <p class="text-lg md:text-xl text-primary mb-6">Descubra se suas habilidades são mais técnicas (Hard Skills) ou comportamentais (Soft Skills)</p>
         <p class="text-base md:text-lg text-gray-800 mb-8">Responda 8 perguntas simples e descubra seu perfil profissional!</p>
