@@ -265,6 +265,8 @@
             font-size: 4rem;
             margin-bottom: 1rem;
             animation: pulse 2s infinite;
+            color: gold;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.7);
         }
 
         .result-percentage {
@@ -337,7 +339,7 @@
         <div id="results-container" class="hidden mt-8 result-card rounded-xl p-8 text-white shadow-xl">
             <div class="text-center">
                 <div class="result-icon">
-                    <i class="fas fa-award"></i>
+                    <i class="fas fa-trophy"></i> <!-- Ícone de troféu -->
                 </div>
                 <h2 class="text-3xl font-bold mb-4">Seu Resultado</h2>
                 <div id="result-text" class="text-xl mb-6"></div>
@@ -709,7 +711,7 @@
                 });
                 
                 // Determine result
-                let result, details, icon;
+                let result, details;
                 const totalQuestions = questions.length;
                 const hardPercentage = Math.round((hardCount / totalQuestions) * 100);
                 const softPercentage = Math.round((softCount / totalQuestions) * 100);
@@ -717,21 +719,19 @@
                 if (hardCount > softCount + 2) {
                     result = "Você se identifica mais com Hard Skills!";
                     details = "Você tem um perfil mais técnico, com forte orientação para resolver problemas complexos e desenvolver soluções inovadoras. Suas habilidades técnicas são seu ponto forte!";
-                    icon = "fas fa-code";
                 } else if (softCount > hardCount + 2) {
                     result = "Você se identifica mais com Soft Skills!";
                     details = "Seu perfil é mais comportamental, com excelentes habilidades de comunicação, trabalho em equipe e gestão. Você brilha na colaboração e na construção de relacionamentos!";
-                    icon = "fas fa-users";
                 } else {
                     result = "Você tem um equilíbrio entre Hard e Soft Skills!";
                     details = "Você possui uma combinação valiosa de habilidades técnicas e comportamentais. Essa versatilidade permite que você se adapte a diferentes desafios e contextos profissionais.";
-                    icon = "fas fa-balance-scale";
                 }
                 
                 // Update UI
                 resultText.textContent = result;
                 resultDetails.textContent = details;
-                document.querySelector('.result-icon i').className = icon;
+                hardCountEl.textContent = hardCount;
+                softCountEl.textContent = softCount;
                 
                 // Animate counting
                 animateCount(hardCountEl, hardCount);
