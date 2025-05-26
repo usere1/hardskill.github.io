@@ -158,6 +158,7 @@
         .btn-primary {
             background-color: var(--primary-color);
             -webkit-appearance: none;
+            appearance: none;
         }
 
         .btn-primary:hover {
@@ -255,6 +256,7 @@
             transition: all 0.3s ease;
             margin-bottom: 1rem;
             -webkit-appearance: none;
+            appearance: none;
         }
 
         .toggle-answers-btn:hover {
@@ -367,17 +369,44 @@
         /* Safari specific fixes */
         @supports (-webkit-touch-callout: none) {
             .result-percentage {
-                -webkit-text-fill-color: white;
-                text-fill-color: white;
-                color: white;
+                -webkit-text-fill-color: white !important;
+                text-fill-color: white !important;
+                color: white !important;
             }
             
             .option {
-                -webkit-tap-highlight-color: transparent;
+                -webkit-tap-highlight-color: transparent !important;
             }
             
             button, input[type="button"], input[type="submit"] {
-                -webkit-appearance: none;
+                -webkit-appearance: none !important;
+                appearance: none !important;
+            }
+            
+            input[type="radio"] {
+                -webkit-appearance: none !important;
+                appearance: none !important;
+            }
+            
+            /* Melhorar responsividade ao toque */
+            .option {
+                padding: 12px;
+            }
+            
+            /* Ajustar tamanho dos elementos interativos para toque */
+            button, .nav-button {
+                min-height: 44px; /* Tamanho mínimo recomendado para toque */
+            }
+            
+            /* Garantir que as animações funcionem */
+            .fade-in, .pulse, .count-up {
+                -webkit-animation-fill-mode: both;
+                animation-fill-mode: both;
+            }
+            
+            /* Correção para overflow-scrolling */
+            .answers-container {
+                -webkit-overflow-scrolling: touch !important;
             }
         }
     </style>
@@ -821,7 +850,7 @@
                 animateCount(hardCountEl, hardCount);
                 animateCount(softCountEl, softCount);
                 
-                // Update percentage - SEMPRE EM BRANCO
+                // Update percentage
                 let percentageText;
                 if (hardCount > softCount) {
                     const hardPercentage = Math.round((hardCount / totalQuestions) * 100);
@@ -855,7 +884,8 @@
                 const details = resultDetails.textContent;
                 const shareText = `Meu resultado no Quiz de Habilidades Profissionais: ${result}\n\n${details}\n\nFaça o quiz você também!`;
                 
-                if (navigator.share) {
+                // Verifica se é iOS e usa o método de compartilhamento nativo se disponível
+                if (navigator.share && /iPhone|iPad|iPod/i.test(navigator.userAgent)) {
                     navigator.share({
                         title: 'Quiz de Habilidades Profissionais',
                         text: shareText,
@@ -871,12 +901,18 @@
 
             // Fallback for sharing
             function fallbackShare(text) {
-                // Copy to clipboard
-                navigator.clipboard.writeText(text).then(() => {
-                    alert('Resultado copiado para a área de transferência! Cole nas suas redes sociais.');
-                }).catch(err => {
+                // Try to copy to clipboard first
+                if (navigator.clipboard) {
+                    navigator.clipboard.writeText(text).then(() => {
+                        alert('Resultado copiado para a área de transferência! Cole nas suas redes sociais.');
+                    }).catch(err => {
+                        // If clipboard fails, use prompt
+                        prompt('Copie o texto abaixo para compartilhar:', text);
+                    });
+                } else {
+                    // Fallback for browsers without clipboard API
                     prompt('Copie o texto abaixo para compartilhar:', text);
-                });
+                }
             }
 
             // Restart quiz
@@ -902,7 +938,7 @@
             themeToggle.addEventListener('click', toggleTheme);
             shareBtn.addEventListener('click', shareResults);
 
-            // Handle option selection
+            // Handle option selection - melhorado para Safari
             document.addEventListener('click', function(e) {
                 if (e.target.closest('.option') && !e.target.closest('.locked')) {
                     const option = e.target.closest('.option');
@@ -930,6 +966,21 @@
                     updateNavigation();
                 }
             });
+
+            // Adiciona touchstart para melhorar a resposta ao toque no Safari
+            document.addEventListener('touchstart', function(e) {
+                if (e.target.closest('.option') && !e.target.closest('.locked')) {
+                    const option = e.target.closest('.option');
+                    option.classList.add('active-touch');
+                }
+            }, { passive: true });
+
+            document.addEventListener('touchend', function(e) {
+                const activeOption = document.querySelector('.option.active-touch');
+                if (activeOption) {
+                    activeOption.classList.remove('active-touch');
+                }
+            }, { passive: true });
         });
     </script>
 </body>
